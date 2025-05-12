@@ -58,13 +58,15 @@ export async function request<T = any>({
   withToken = true,
   retry = true,
 }: RequestOptions): Promise<T> {
+  let result: any;
+  
   // 准备请求配置
   const requestConfig: RequestInit = {
     method,
     headers: {
       'Content-Type': 'application/json',
       ...headers,
-    },
+    } as Record<string, string>,
   };
 
   // 添加认证令牌
@@ -80,7 +82,15 @@ export async function request<T = any>({
 
   // 添加请求体
   if (data) {
-    requestConfig.body = JSON.stringify(data);
+    // 检查是否为FormData类型
+    if (data instanceof FormData) {
+      requestConfig.body = data;
+      // 使用类型断言确保安全访问
+      const headerRecord = requestConfig.headers as Record<string, string>;
+      delete headerRecord['Content-Type'];
+    } else {
+      requestConfig.body = JSON.stringify(data);
+    }
   }
 
   // 处理查询参数
@@ -135,7 +145,6 @@ export async function request<T = any>({
     }
 
     // 根据响应类型处理响应
-    let result;
     if (responseType === 'json') {
       result = await response.json();
     } else if (responseType === 'text') {
@@ -149,20 +158,26 @@ export async function request<T = any>({
     }
 
     // 处理业务错误
-    if (responseType === 'json' && (result as BaseResponse).code !== 0) {
-      const errorMsg = (result as BaseResponse).message || '请求失败';
-      Message.error(errorMsg);
-      throw new Error(errorMsg);
+    if (responseType === 'json') {
+      // 检查响应中的success字段 - 后端使用success判断是否成功
+      if ((result as any).success === false) {
+        const errorMsg = (result as any).message || '请求失败';
+        Message.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+      
+      // 如果是成功响应，直接返回数据
+      return responseType === 'json' ? (result as any).data || result : result;
     }
-
-    // 返回响应数据
-    return responseType === 'json' ? (result as BaseResponse).data : result;
   } catch (error: unknown) {
     // 显示错误消息
     const errorMessage = error instanceof Error ? error.message : '请求发生错误';
     Message.error(errorMessage);
     throw error;
   }
+  
+  // 添加这行作为默认返回
+  return result as T;
 }
 
 // 简便方法

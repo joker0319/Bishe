@@ -1,12 +1,14 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStorage } from '@vueuse/core';
+import { useNotification } from './useNotification';
 import { authService } from '@/services/auth.service';
 import type { LoginRequest, LoginResponse } from '@/types/auth';
 
 // 导入用户store时避免循环依赖
 export function useAuth() {
   const router = useRouter();
+  const { showNotification } = useNotification();
   
   // 用户状态
   const token = useStorage('auth_token', '');
@@ -19,27 +21,37 @@ export function useAuth() {
   /**
    * 登录方法
    */
-  const login = async (loginData: LoginRequest): Promise<LoginResponse> => {
+  const login = async (username: string, password: string) => {
     isLoading.value = true;
     
     try {
-      const response = await authService.login(loginData);
+      // 打印响应以检查结构
+      const response = await authService.login(username, password);
+      console.log("登录响应:", response);
       
-      // 保存令牌
-      token.value = response.token;
-      refreshToken.value = response.refreshToken;
+      // 直接使用响应对象，不要尝试访问.data
+      const userData = response.user;
+      const tokenValue = response.token;
+      
+      if (!userData || !tokenValue) {
+        throw new Error("登录响应格式无效");
+      }
       
       // 延迟导入避免循环依赖
       const { useUserStore } = await import('@/stores/user.store');
       const userStore = useUserStore();
       
-      // 更新用户信息
-      userStore.setUser(response.user);
+      // 正确存储用户信息和令牌
+      userStore.login(tokenValue, userData);
       
-      return response;
-    } catch (error) {
-      console.error('登录失败:', error);
-      throw error;
+      router.push("/home");
+    } catch (error: any) {
+      console.error("登录失败:", error);
+      showNotification({
+        title: "登录失败",
+        content: error.message || "用户名或密码错误",
+        type: "error"
+      });
     } finally {
       isLoading.value = false;
     }
@@ -85,7 +97,10 @@ export function useAuth() {
       const { useUserStore } = await import('@/stores/user.store');
       const userStore = useUserStore();
       
-      userStore.setUser(user);
+      userStore.setUserInfo({
+        ...user,
+        id: Number(user.id)
+      });
       return true;
     } catch (error) {
       console.error('验证令牌失败:', error);

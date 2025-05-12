@@ -11,7 +11,7 @@ class AuthService {
    */
   async login(loginData: LoginRequest): Promise<LoginResponse> {
     return request({
-      url: '/api/auth/login',
+      url: 'http://localhost:3000/api/auth/login',
       method: 'POST',
       data: loginData
     });
@@ -23,7 +23,7 @@ class AuthService {
    */
   async register(registerData: RegisterRequest): Promise<void> {
     return request({
-      url: '/api/auth/register',
+      url: 'http://localhost:3000/api/auth/register',
       method: 'POST',
       data: registerData
     });
@@ -34,7 +34,7 @@ class AuthService {
    */
   async logout(): Promise<void> {
     return request({
-      url: '/api/auth/logout',
+      url: 'http://localhost:3000/api/auth/logout',
       method: 'POST'
     });
   }
@@ -44,7 +44,7 @@ class AuthService {
    */
   async getCurrentUser(): Promise<UserInfo> {
     return request({
-      url: '/api/auth/me',
+      url: 'http://localhost:3000/api/auth/me',
       method: 'GET'
     });
   }
@@ -55,7 +55,7 @@ class AuthService {
    */
   async refreshToken(refreshToken: string): Promise<{ token: string; refreshToken: string }> {
     return request({
-      url: '/api/auth/refresh-token',
+      url: 'http://localhost:3000/api/auth/refresh-token',
       method: 'POST',
       data: { refreshToken }
     });

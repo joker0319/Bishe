@@ -10,6 +10,8 @@ const MapView = () => import('@/views/map/MapView.vue');
 const DashboardView = () => import('@/views/dashboard/DashboardView.vue');
 const ForumView = () => import('@/views/forum/ForumView.vue');
 const MessageView = () => import('@/views/message/MessageView.vue');
+const ProfileView = () => import('@/views/profile/ProfileView.vue');
+const SettingsView = () => import('@/views/profile/SettingsView.vue');
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -80,6 +82,39 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
+    path: '/profile',
+    name: 'Profile',
+    component: ProfileView,
+    meta: {
+      requiresAuth: true,
+      title: '个人中心'
+    }
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: SettingsView,
+    meta: {
+      requiresAuth: true,
+      title: '账号设置'
+    }
+  },
+  {
+    path: '/ai-assistant',
+    name: 'ai-assistant',
+    component: () => import('../views/assistant/AiAssistantView.vue')
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: () => import('../views/admin/AdminView.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,
+      title: '管理中心'
+    }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: NotFound,
@@ -100,18 +135,25 @@ router.beforeEach(async (to, from, next) => {
   // 设置页面标题
   document.title = (to.meta.title as string) || '应用系统';
   
-  // 检查路由是否需要认证
+  // 检查路由是否需要认证或管理员权限
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
   
-  if (requiresAuth) {
+  if (requiresAuth || requiresAdmin) {
     // 获取用户状态
     const userStore = useUserStore();
     
     if (!userStore.isLoggedIn) {
-      // 临时取消重定向，直接允许访问
-      next();
+      // 用户未登录，重定向到登录页
+      next({
+        path: '/auth/login',
+        query: { redirect: to.fullPath }
+      });
+    } else if (requiresAdmin && !userStore.user?.isAdmin) {
+      // 需要管理员权限但用户不是管理员
+      next({ path: '/home' });
     } else {
-      // 用户已登录，允许访问
+      // 用户已登录且权限满足要求，允许访问
       next();
     }
   } else {

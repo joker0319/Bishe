@@ -4,14 +4,16 @@
     <div class="routes-header">
       <div class="title-area">
         <h1 class="page-title">徒步路线</h1>
-        <p class="page-desc">精选全国各地高品质徒步路线，根据难度和特点分类，助您畅享户外乐趣</p>
+        <p class="page-desc">
+          精选全国各地高品质徒步路线，根据难度和特点分类，助您畅享户外乐趣
+        </p>
       </div>
     </div>
 
     <!-- 筛选栏 -->
     <div class="filter-section">
       <a-row :gutter="[16, 16]" align="center">
-        <a-col :span="6">
+        <a-col :span="8">
           <a-input-search
             placeholder="搜索路线名称、地点"
             allow-clear
@@ -19,7 +21,7 @@
             @search="handleSearch"
           />
         </a-col>
-        <a-col :span="4">
+        <a-col :span="5">
           <a-select
             placeholder="难度等级"
             v-model="difficultyFilter"
@@ -31,7 +33,7 @@
             <a-option value="hard">高级路线</a-option>
           </a-select>
         </a-col>
-        <a-col :span="4">
+        <a-col :span="5">
           <a-select
             placeholder="路线长度"
             v-model="distanceFilter"
@@ -43,7 +45,7 @@
             <a-option value="long">长距离 (>10公里)</a-option>
           </a-select>
         </a-col>
-        <a-col :span="4">
+        <a-col :span="5">
           <a-select
             placeholder="所需时间"
             v-model="durationFilter"
@@ -55,13 +57,6 @@
             <a-option value="long">长时间 (>6小时)</a-option>
           </a-select>
         </a-col>
-        <a-col :span="6" style="text-align: right">
-          <a-radio-group type="button" v-model="sortType" @change="applyFilters">
-            <a-radio value="popular">热门</a-radio>
-            <a-radio value="rating">评分</a-radio>
-            <a-radio value="newest">最新</a-radio>
-          </a-radio-group>
-        </a-col>
       </a-row>
     </div>
 
@@ -71,10 +66,19 @@
     <div class="routes-container">
       <a-row :gutter="[24, 24]">
         <a-col :span="8" v-for="route in filteredRoutes" :key="route.id">
-          <a-card class="route-card" hoverable @click="viewRouteDetail(route.id)">
+          <a-card
+            class="route-card"
+            hoverable
+            @click="viewRouteDetail(route.id)"
+          >
             <template #cover>
-              <div class="route-image" :style="{ backgroundImage: `url(${route.image})` }">
-                <div class="route-difficulty" :class="route.difficultyClass">{{ route.difficulty }}</div>
+              <div
+                class="route-image"
+                :style="{ backgroundImage: `url(${route.image})` }"
+              >
+                <div class="route-difficulty" :class="route.difficultyClass">
+                  {{ route.difficulty }}
+                </div>
               </div>
             </template>
             <a-card-meta :title="route.title">
@@ -95,7 +99,12 @@
                 </div>
                 <p class="route-summary">{{ route.description }}</p>
                 <div class="route-meta">
-                  <a-rate :default-value="route.rating" size="small" readonly allow-half />
+                  <a-rate
+                    :default-value="route.rating"
+                    size="small"
+                    readonly
+                    allow-half
+                  />
                   <span class="review-count">{{ route.reviews }}条评价</span>
                 </div>
               </template>
@@ -108,12 +117,19 @@
                   <span>{{ route.location }}</span>
                 </div>
                 <div class="seasons">
-                  <template v-for="(season, index) in route.seasons" :key="index">
+                  <template
+                    v-for="(season, index) in route.seasons"
+                    :key="index"
+                  >
                     <a-tag :color="getSeasonColor(season)">{{ season }}</a-tag>
                   </template>
                 </div>
               </div>
-              <a-button type="primary" shape="round">
+              <a-button
+                type="primary"
+                shape="round"
+                @click.stop="openRouteDetail(route)"
+              >
                 查看详情
                 <template #icon><icon-right /></template>
               </a-button>
@@ -130,215 +146,231 @@
         </a-button>
       </div>
     </div>
+
+    <!-- 路线详情弹窗 -->
+    <a-modal
+      v-model:visible="detailVisible"
+      :title="selectedRoute?.title"
+      :footer="false"
+      :maskClosable="true"
+      width="700px"
+    >
+      <div v-if="selectedRoute" class="route-detail-modal">
+        <!-- 路线图片 -->
+        <div
+          class="route-detail-image"
+          :style="{ backgroundImage: `url(${selectedRoute.image})` }"
+        >
+          <div class="route-difficulty" :class="selectedRoute.difficultyClass">
+            {{ selectedRoute.difficulty }}
+          </div>
+        </div>
+
+        <!-- 路线基本信息 -->
+        <div class="route-detail-info">
+          <div class="info-row">
+            <div class="info-item">
+              <icon-clock-circle class="info-icon" />
+              <span>时长: {{ selectedRoute.duration }}</span>
+            </div>
+            <div class="info-item">
+              <icon-compass class="info-icon" />
+              <span>距离: {{ selectedRoute.distance }}</span>
+            </div>
+            <div class="info-item">
+              <icon-fire class="info-icon" />
+              <span>海拔: {{ selectedRoute.elevation }}</span>
+            </div>
+          </div>
+
+          <div class="info-item location">
+            <icon-location class="info-icon" />
+            <span>位置: {{ selectedRoute.location }}</span>
+          </div>
+
+          <div class="info-item seasons">
+            <span>最佳季节: </span>
+            <template
+              v-for="(season, index) in selectedRoute.seasons"
+              :key="index"
+            >
+              <a-tag :color="getSeasonColor(season)">{{ season }}</a-tag>
+            </template>
+          </div>
+        </div>
+
+        <!-- 路线描述 -->
+        <a-divider>路线详情</a-divider>
+        <div class="route-description">
+          <p>{{ selectedRoute.description }}</p>
+        </div>
+      </div>
+    </a-modal>
   </DefaultLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import DefaultLayout from '@/layouts/DefaultLayout.vue';
-import { 
-  IconClockCircle, 
-  IconCompass, 
-  IconFire, 
-  IconLocation, 
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import DefaultLayout from "../../layouts/DefaultLayout.vue";
+import {
+  hikingRoutesService,
+  HikingRoute,
+} from "../../services/hiking-routes.service";
+import {
+  IconClockCircle,
+  IconCompass,
+  IconFire,
+  IconLocation,
   IconRight,
-  IconDown
-} from '@arco-design/web-vue/es/icon';
-import { Message } from '@arco-design/web-vue';
+  IconDown,
+} from "@arco-design/web-vue/es/icon";
+import { Message } from "@arco-design/web-vue";
 
 const router = useRouter();
 
 // 筛选和搜索状态
-const searchQuery = ref('');
-const difficultyFilter = ref('');
-const distanceFilter = ref('');
-const durationFilter = ref('');
-const sortType = ref('popular');
+const searchQuery = ref("");
+const difficultyFilter = ref("");
+const distanceFilter = ref("");
+const durationFilter = ref("");
 const currentPage = ref(1);
 const hasMoreRoutes = ref(true);
 
-// 路线数据
-const allRoutes = ref([
-  {
-    id: 1,
-    title: '龙虎山观景徒步路线',
-    difficulty: '初级',
-    difficultyClass: 'easy',
-    duration: '3小时',
-    distance: '5.8公里',
-    elevation: '320米',
-    description: '适合初学者的经典路线，景色优美，路况良好，可欣赏山景和溪流。',
-    image: 'https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=1470&auto=format&fit=crop',
-    rating: 4.5,
-    reviews: 128,
-    location: '四川 成都',
-    seasons: ['春季', '秋季'],
-    createdAt: '2023-05-15'
-  },
-  {
-    id: 2,
-    title: '青龙峡谷探险路线',
-    difficulty: '中级',
-    difficultyClass: 'medium',
-    duration: '5小时',
-    distance: '9.5公里',
-    elevation: '580米',
-    description: '中等难度的峡谷路线，包含部分攀爬段，沿途有多处壮观的峡谷景观。',
-    image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1470&auto=format&fit=crop',
-    rating: 4.8,
-    reviews: 97,
-    location: '云南 丽江',
-    seasons: ['春季', '夏季', '秋季'],
-    createdAt: '2023-06-20'
-  },
-  {
-    id: 3,
-    title: '雪山高原长线徒步',
-    difficulty: '高级',
-    difficultyClass: 'hard',
-    duration: '8小时',
-    distance: '16.2公里',
-    elevation: '1200米',
-    description: '挑战性强的高海拔路线，需要良好的体能和户外经验，风景壮丽。',
-    image: 'https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?q=80&w=1471&auto=format&fit=crop',
-    rating: 4.9,
-    reviews: 76,
-    location: '西藏 林芝',
-    seasons: ['夏季'],
-    createdAt: '2023-04-10'
-  },
-  {
-    id: 4,
-    title: '松林湖泊环线',
-    difficulty: '初级',
-    difficultyClass: 'easy',
-    duration: '2.5小时',
-    distance: '4.2公里',
-    elevation: '150米',
-    description: '平缓的湖泊环线，全程树荫遮盖，非常适合夏季徒步和亲子活动。',
-    image: 'https://images.unsplash.com/photo-1465311530779-5241f5a29892?q=80&w=1470&auto=format&fit=crop',
-    rating: 4.3,
-    reviews: 156,
-    location: '浙江 杭州',
-    seasons: ['春季', '夏季', '秋季'],
-    createdAt: '2023-08-05'
-  },
-  {
-    id: 5,
-    title: '黄山西海大峡谷',
-    difficulty: '中级',
-    difficultyClass: 'medium',
-    duration: '6小时',
-    distance: '8.7公里',
-    elevation: '750米',
-    description: '穿越壮观的峡谷和山脉，欣赏黄山奇松怪石，沿途风景秀丽，适合徒步爱好者。',
-    image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1574&auto=format&fit=crop',
-    rating: 4.7,
-    reviews: 112,
-    location: '安徽 黄山',
-    seasons: ['春季', '秋季'],
-    createdAt: '2023-07-12'
-  },
-  {
-    id: 6,
-    title: '海岸线礁石路线',
-    difficulty: '中级',
-    difficultyClass: 'medium',
-    duration: '4小时',
-    distance: '7.3公里',
-    elevation: '210米',
-    description: '沿海岸线穿行，经过多处礁石和海蚀地貌，可以欣赏壮观的海景。',
-    image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1470&auto=format&fit=crop',
-    rating: 4.6,
-    reviews: 88,
-    location: '福建 厦门',
-    seasons: ['春季', '秋季', '冬季'],
-    createdAt: '2023-09-18'
+// 路线数据，初始为空数组
+const allRoutes = ref<HikingRoute[]>([]);
+const loading = ref(true);
+
+// 添加弹窗状态管理
+const detailVisible = ref(false);
+const selectedRoute = ref<HikingRoute | null>(null);
+
+// 从API获取路线数据
+const fetchRoutes = async () => {
+  try {
+    loading.value = true;
+    const routes = await hikingRoutesService.getAllRoutes();
+    allRoutes.value = routes;
+  } catch (error) {
+    console.error("获取路线数据失败:", error);
+    Message.error("获取路线数据失败，请刷新页面重试");
+  } finally {
+    loading.value = false;
   }
-]);
+};
 
 // 计算筛选后的路线
 const filteredRoutes = computed(() => {
   let result = [...allRoutes.value];
-  
+  console.log("筛选前路线数:", result.length);
+
   // 应用搜索查询
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
-    result = result.filter(route => 
-      route.title.toLowerCase().includes(query) || 
-      route.location.toLowerCase().includes(query)
+    result = result.filter(
+      (route) =>
+        route.title.toLowerCase().includes(query) ||
+        route.location.toLowerCase().includes(query)
     );
+    console.log("搜索后路线数:", result.length);
   }
-  
+
   // 应用难度筛选
   if (difficultyFilter.value) {
-    result = result.filter(route => route.difficultyClass === difficultyFilter.value);
+    result = result.filter(
+      (route) => route.difficultyClass === difficultyFilter.value
+    );
+    console.log("难度筛选后路线数:", result.length);
   }
-  
+
   // 应用距离筛选
   if (distanceFilter.value) {
-    result = result.filter(route => {
-      const distance = parseFloat(route.distance.replace('公里', ''));
-      if (distanceFilter.value === 'short') return distance <= 5;
-      if (distanceFilter.value === 'medium') return distance > 5 && distance <= 10;
-      if (distanceFilter.value === 'long') return distance > 10;
+    result = result.filter((route) => {
+      // 提取数字部分
+      const distanceStr = route.distance.replace(/[^0-9.]/g, "");
+      const distance = parseFloat(distanceStr);
+
+      if (distanceFilter.value === "short") return distance <= 5;
+      if (distanceFilter.value === "medium")
+        return distance > 5 && distance <= 10;
+      if (distanceFilter.value === "long") return distance > 10;
       return true;
     });
+    console.log("距离筛选后路线数:", result.length);
   }
-  
+
   // 应用时间筛选
   if (durationFilter.value) {
-    result = result.filter(route => {
-      const duration = parseFloat(route.duration.replace('小时', ''));
-      if (durationFilter.value === 'short') return duration <= 3;
-      if (durationFilter.value === 'medium') return duration > 3 && duration <= 6;
-      if (durationFilter.value === 'long') return duration > 6;
+    result = result.filter((route) => {
+      // 提取数字部分
+      const durationStr = route.duration.replace(/[^0-9.]/g, "");
+      const duration = parseFloat(durationStr);
+
+      if (durationFilter.value === "short") return duration <= 3;
+      if (durationFilter.value === "medium")
+        return duration > 3 && duration <= 6;
+      if (durationFilter.value === "long") return duration > 6;
       return true;
     });
+    console.log("时间筛选后路线数:", result.length);
   }
-  
-  // 应用排序
-  if (sortType.value === 'popular') {
-    result.sort((a, b) => b.reviews - a.reviews);
-  } else if (sortType.value === 'rating') {
-    result.sort((a, b) => b.rating - a.rating);
-  } else if (sortType.value === 'newest') {
-    result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }
-  
+
   return result;
 });
 
 // 处理搜索
 function handleSearch() {
+  console.log("执行搜索:", searchQuery.value);
   applyFilters();
 }
 
 // 应用筛选
 function applyFilters() {
+  console.log("应用筛选条件:", {
+    搜索: searchQuery.value,
+    难度: difficultyFilter.value,
+    距离: distanceFilter.value,
+    时间: durationFilter.value,
+  });
+
   currentPage.value = 1;
-  // 当筛选条件改变时，判断是否还有更多路线
   hasMoreRoutes.value = filteredRoutes.value.length > 6;
+
+  if (filteredRoutes.value.length === 0) {
+    Message.info("没有符合条件的路线，请尝试其他筛选条件");
+  }
 }
 
 // 获取季节标签颜色
 function getSeasonColor(season: string) {
   switch (season) {
-    case '春季': return 'green';
-    case '夏季': return 'blue';
-    case '秋季': return 'orange';
-    case '冬季': return 'arcoblue';
-    default: return 'gray';
+    case "春季":
+      return "green";
+    case "夏季":
+      return "blue";
+    case "秋季":
+      return "orange";
+    case "冬季":
+      return "arcoblue";
+    default:
+      return "gray";
   }
+}
+
+// 打开路线详情弹窗
+function openRouteDetail(route: HikingRoute) {
+  selectedRoute.value = route;
+  detailVisible.value = true;
 }
 
 // 查看路线详情
 function viewRouteDetail(id: number) {
-  console.log('查看路线详情:', id);
-  // 跳转到路线详情页面
-  // router.push(`/route/${id}`);
-  Message.info('路线详情功能开发中');
+  const route = allRoutes.value.find((r) => r.id === id);
+  if (route) {
+    openRouteDetail(route);
+  } else {
+    Message.error("未找到路线详情");
+  }
 }
 
 // 加载更多路线
@@ -346,7 +378,7 @@ function loadMoreRoutes() {
   currentPage.value++;
   // 模拟加载更多路线
   // 实际应用中，这里应该调用API获取下一页的路线
-  Message.success('加载更多路线成功');
+  Message.success("加载更多路线成功");
   // 当没有更多路线时
   if (currentPage.value >= 3) {
     hasMoreRoutes.value = false;
@@ -354,7 +386,7 @@ function loadMoreRoutes() {
 }
 
 onMounted(() => {
-  console.log('路线页面已加载');
+  fetchRoutes();
 });
 </script>
 
@@ -368,12 +400,12 @@ onMounted(() => {
   font-size: 32px;
   font-weight: 600;
   margin-bottom: 12px;
-  color: #1D2129;
+  color: #1d2129;
 }
 
 .page-desc {
   font-size: 16px;
-  color: #4E5969;
+  color: #4e5969;
   max-width: 700px;
   margin: 0 auto;
 }
@@ -420,15 +452,15 @@ onMounted(() => {
 }
 
 .easy {
-  background-color: #3DD2B4;
+  background-color: #3dd2b4;
 }
 
 .medium {
-  background-color: #F59B42;
+  background-color: #f59b42;
 }
 
 .hard {
-  background-color: #F4664A;
+  background-color: #f4664a;
 }
 
 .route-info {
@@ -442,7 +474,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   font-size: 12px;
-  color: #86909C;
+  color: #86909c;
 }
 
 .info-icon {
@@ -452,7 +484,7 @@ onMounted(() => {
 
 .route-summary {
   font-size: 14px;
-  color: #4E5969;
+  color: #4e5969;
   margin-bottom: 12px;
   line-height: 1.6;
   display: -webkit-box;
@@ -467,7 +499,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-top: 12px;
-  color: #86909C;
+  color: #86909c;
   font-size: 12px;
 }
 
@@ -495,7 +527,7 @@ onMounted(() => {
   align-items: center;
   gap: 4px;
   font-size: 13px;
-  color: #4E5969;
+  color: #4e5969;
 }
 
 .seasons {
@@ -512,13 +544,52 @@ onMounted(() => {
   .filter-section :deep(.arco-col) {
     margin-bottom: 12px;
   }
-  
+
   .page-title {
     font-size: 24px;
   }
-  
+
   .page-desc {
     font-size: 14px;
   }
+}
+
+/* 添加弹窗样式 */
+.route-detail-modal {
+  padding: 0;
+}
+
+.route-detail-image {
+  height: 280px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.route-detail-info {
+  margin-bottom: 20px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #4e5969;
+  margin-bottom: 8px;
+}
+
+.route-description {
+  line-height: 1.8;
+  color: #4e5969;
+  text-align: justify;
+  margin-bottom: 20px;
 }
 </style> 
