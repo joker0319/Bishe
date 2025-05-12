@@ -34,42 +34,68 @@
         <a-spin :loading="loading" style="width: 100%">
           <template v-if="filteredMessages.length > 0">
             <a-list :bordered="false" class="message-list">
-              <a-list-item 
-                v-for="message in filteredMessages" 
+              <a-list-item
+                v-for="message in filteredMessages"
                 :key="message.id"
                 class="message-item"
-                :class="{ 'unread': !message.isRead }"
+                :class="{ unread: !message.isRead }"
               >
                 <div class="message-dot" v-if="!message.isRead"></div>
-                <div class="message-wrapper" @click="viewMessageDetail(message)">
+                <div
+                  class="message-wrapper"
+                  @click="viewMessageDetail(message)"
+                >
                   <div class="message-avatar">
                     <a-avatar :size="40" :image-url="message.sender.avatar" />
                   </div>
                   <div class="message-main">
                     <div class="message-info">
-                      <span class="message-sender">{{ message.sender.name }}</span>
-                      <span class="message-time">{{ formatDate(message.createdAt) }}</span>
+                      <span class="message-sender">{{
+                        message.sender.name
+                      }}</span>
+                      <span class="message-time">{{
+                        formatDate(message.createdAt)
+                      }}</span>
                     </div>
                     <div class="message-content-text">
-                      <span v-if="message.type === 'like'" class="message-action">
+                      <span
+                        v-if="message.type === 'like'"
+                        class="message-action"
+                      >
                         <icon-thumb-up class="icon-like" /> 赞了你的帖子
                       </span>
-                      <span v-else-if="message.type === 'comment'" class="message-action">
+                      <span
+                        v-else-if="message.type === 'comment'"
+                        class="message-action"
+                      >
                         <icon-message class="icon-comment" /> 评论了你的帖子
                       </span>
-                      <span class="message-post-title">《{{ message.post.title }}》</span>
+                      <span class="message-post-title"
+                        >《{{ message.post.title }}》</span
+                      >
                     </div>
-                    <div class="message-detail" v-if="message.type === 'comment'">
+                    <div
+                      class="message-detail"
+                      v-if="message.type === 'comment'"
+                    >
                       <div class="comment-content">
                         {{ message.content }}
                       </div>
                     </div>
                   </div>
                   <div class="message-actions">
-                    <a-button type="text" @click.stop="markAsRead(message)" v-if="!message.isRead">
+                    <a-button
+                      type="text"
+                      @click.stop="markAsRead(message)"
+                      v-if="!message.isRead"
+                    >
                       标为已读
                     </a-button>
-                    <a-button type="text" status="danger" @click.stop="deleteMessage(message)">
+                    <a-button
+                      type="text"
+                      status="danger"
+                      @click.stop="deleteMessage(message)"
+                    >
                       <template #icon><icon-delete /></template>
                     </a-button>
                   </div>
@@ -77,17 +103,24 @@
               </a-list-item>
             </a-list>
           </template>
-          
+
           <template v-else>
             <div class="empty-state">
               <a-empty description="暂无相关消息" />
             </div>
           </template>
-          
+
           <!-- 加载更多 -->
-          <div class="load-more" v-if="hasMoreMessages && filteredMessages.length > 0">
-            <a-button type="text" @click="loadMoreMessages" :loading="loadingMore">
-              {{ loadingMore ? '加载中...' : '加载更多消息' }}
+          <div
+            class="load-more"
+            v-if="hasMoreMessages && filteredMessages.length > 0"
+          >
+            <a-button
+              type="text"
+              @click="loadMoreMessages"
+              :loading="loadingMore"
+            >
+              {{ loadingMore ? "加载中..." : "加载更多消息" }}
               <template #icon><icon-down /></template>
             </a-button>
           </div>
@@ -98,17 +131,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { Message } from '@arco-design/web-vue';
-import DefaultLayout from '@/layouts/DefaultLayout.vue';
-import { 
-  IconThumbUp, 
-  IconMessage, 
-  IconDown, 
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { Message } from "@arco-design/web-vue";
+import DefaultLayout from "../../layouts/DefaultLayout.vue";
+import {
+  IconThumbUp,
+  IconMessage,
+  IconDown,
   IconCheck,
-  IconDelete
-} from '@arco-design/web-vue/es/icon';
+  IconDelete,
+} from "@arco-design/web-vue/es/icon";
 
 const router = useRouter();
 
@@ -116,134 +149,142 @@ const router = useRouter();
 const loading = ref(false);
 const loadingMore = ref(false);
 const hasMoreMessages = ref(true);
-const messageType = ref('all'); // all, like, comment, unread
+const messageType = ref("all"); // all, like, comment, unread
 const messages = ref([
   {
     id: 1,
-    type: 'like',
+    type: "like",
     sender: {
       id: 201,
-      name: '云间漫步',
-      avatar: 'https://p1-arco.byteimg.com/oss-cn-beijing/fcc8d168-a764-4f1e-8094-8b1f62496aee~tplv-k3u1fbpfcp-image.image'
+      name: "云间漫步",
+      avatar:
+        "https://p1-arco.byteimg.com/oss-cn-beijing/fcc8d168-a764-4f1e-8094-8b1f62496aee~tplv-k3u1fbpfcp-image.image",
     },
     post: {
       id: 101,
-      title: '黄山徒步三日游经验分享，适合新手的路线攻略'
+      title: "黄山徒步三日游经验分享，适合新手的路线攻略",
     },
-    content: '',
+    content: "",
     isRead: false,
-    createdAt: '2023-07-12T09:25:10Z'
+    createdAt: "2023-07-12T09:25:10Z",
   },
   {
     id: 2,
-    type: 'comment',
+    type: "comment",
     sender: {
       id: 202,
-      name: '山间溪流',
-      avatar: 'https://p1-arco.byteimg.com/oss-cn-beijing/1e33ec0e-4226-4e57-9e85-714f8a87b42e~tplv-k3u1fbpfcp-image.image'
+      name: "山间溪流",
+      avatar:
+        "https://p1-arco.byteimg.com/oss-cn-beijing/1e33ec0e-4226-4e57-9e85-714f8a87b42e~tplv-k3u1fbpfcp-image.image",
     },
     post: {
       id: 101,
-      title: '黄山徒步三日游经验分享，适合新手的路线攻略'
+      title: "黄山徒步三日游经验分享，适合新手的路线攻略",
     },
-    content: '很详细的攻略，对我帮助很大！请问住宿的话有推荐的地方吗？',
+    content: "很详细的攻略，对我帮助很大！请问住宿的话有推荐的地方吗？",
     isRead: true,
-    createdAt: '2023-07-11T15:42:30Z'
+    createdAt: "2023-07-11T15:42:30Z",
   },
   {
     id: 3,
-    type: 'like',
+    type: "like",
     sender: {
       id: 203,
-      name: '徒步者',
-      avatar: 'https://p1-arco.byteimg.com/oss-cn-beijing/45ce9a1d-dd01-499c-af33-51c4c9a9f6dc~tplv-k3u1fbpfcp-image.image'
+      name: "徒步者",
+      avatar:
+        "https://p1-arco.byteimg.com/oss-cn-beijing/45ce9a1d-dd01-499c-af33-51c4c9a9f6dc~tplv-k3u1fbpfcp-image.image",
     },
     post: {
       id: 102,
-      title: '登山鞋选购攻略：五年徒步经验的分享'
+      title: "登山鞋选购攻略：五年徒步经验的分享",
     },
-    content: '',
+    content: "",
     isRead: false,
-    createdAt: '2023-07-10T20:15:45Z'
+    createdAt: "2023-07-10T20:15:45Z",
   },
   {
     id: 4,
-    type: 'comment',
+    type: "comment",
     sender: {
       id: 204,
-      name: '山野探险',
-      avatar: 'https://p1-arco.byteimg.com/oss-cn-beijing/fcc8d168-a764-4f1e-8094-8b1f62496aee~tplv-k3u1fbpfcp-image.image'
+      name: "山野探险",
+      avatar:
+        "https://p1-arco.byteimg.com/oss-cn-beijing/fcc8d168-a764-4f1e-8094-8b1f62496aee~tplv-k3u1fbpfcp-image.image",
     },
     post: {
       id: 102,
-      title: '登山鞋选购攻略：五年徒步经验的分享'
+      title: "登山鞋选购攻略：五年徒步经验的分享",
     },
-    content: '我用过文中推荐的第三款鞋，确实防水性很好，但透气性一般，夏天穿会比较闷热。',
+    content:
+      "我用过文中推荐的第三款鞋，确实防水性很好，但透气性一般，夏天穿会比较闷热。",
     isRead: false,
-    createdAt: '2023-07-09T14:38:20Z'
+    createdAt: "2023-07-09T14:38:20Z",
   },
   {
     id: 5,
-    type: 'comment',
+    type: "comment",
     sender: {
       id: 205,
-      name: '户外达人',
-      avatar: 'https://p1-arco.byteimg.com/oss-cn-beijing/45ce9a1d-dd01-499c-af33-51c4c9a9f6dc~tplv-k3u1fbpfcp-image.image'
+      name: "户外达人",
+      avatar:
+        "https://p1-arco.byteimg.com/oss-cn-beijing/45ce9a1d-dd01-499c-af33-51c4c9a9f6dc~tplv-k3u1fbpfcp-image.image",
     },
     post: {
       id: 101,
-      title: '黄山徒步三日游经验分享，适合新手的路线攻略'
+      title: "黄山徒步三日游经验分享，适合新手的路线攻略",
     },
-    content: '感谢分享！想请教一下，这个路线适合带孩子去吗？孩子10岁，平时有参加一些户外活动。',
+    content:
+      "感谢分享！想请教一下，这个路线适合带孩子去吗？孩子10岁，平时有参加一些户外活动。",
     isRead: true,
-    createdAt: '2023-07-05T08:12:15Z'
+    createdAt: "2023-07-05T08:12:15Z",
   },
   {
     id: 6,
-    type: 'like',
+    type: "like",
     sender: {
       id: 206,
-      name: '风之旅者',
-      avatar: 'https://p1-arco.byteimg.com/oss-cn-beijing/1e33ec0e-4226-4e57-9e85-714f8a87b42e~tplv-k3u1fbpfcp-image.image'
+      name: "风之旅者",
+      avatar:
+        "https://p1-arco.byteimg.com/oss-cn-beijing/1e33ec0e-4226-4e57-9e85-714f8a87b42e~tplv-k3u1fbpfcp-image.image",
     },
     post: {
       id: 103,
-      title: '徒步装备必备清单：从新手到专业的全套推荐'
+      title: "徒步装备必备清单：从新手到专业的全套推荐",
     },
-    content: '',
+    content: "",
     isRead: true,
-    createdAt: '2023-07-03T19:27:40Z'
-  }
+    createdAt: "2023-07-03T19:27:40Z",
+  },
 ]);
 
 // 过滤消息
 const filteredMessages = computed(() => {
-  if (messageType.value === 'all') {
+  if (messageType.value === "all") {
     return messages.value;
-  } else if (messageType.value === 'like') {
-    return messages.value.filter(msg => msg.type === 'like');
-  } else if (messageType.value === 'comment') {
-    return messages.value.filter(msg => msg.type === 'comment');
-  } else if (messageType.value === 'unread') {
-    return messages.value.filter(msg => !msg.isRead);
+  } else if (messageType.value === "like") {
+    return messages.value.filter((msg) => msg.type === "like");
+  } else if (messageType.value === "comment") {
+    return messages.value.filter((msg) => msg.type === "comment");
+  } else if (messageType.value === "unread") {
+    return messages.value.filter((msg) => !msg.isRead);
   }
   return messages.value;
 });
 
 // 是否有未读消息
 const hasUnread = computed(() => {
-  return messages.value.some(msg => !msg.isRead);
+  return messages.value.some((msg) => !msg.isRead);
 });
 
 // 获取消息类型标签
 const getTypeLabel = (type: string) => {
   const types: Record<string, string> = {
-    all: '全部消息',
-    like: '点赞通知',
-    comment: '评论通知',
-    unread: '未读消息'
+    all: "全部消息",
+    like: "点赞通知",
+    comment: "评论通知",
+    unread: "未读消息",
   };
-  return types[type] || '全部消息';
+  return types[type] || "全部消息";
 };
 
 // 处理消息类型切换
@@ -256,14 +297,17 @@ const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   const now = new Date();
   const diff = now.getTime() - date.getTime();
-  
+
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
-  
+
   if (days > 30) {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")}`;
   } else if (days > 0) {
     return `${days}天前`;
   } else if (hours > 0) {
@@ -271,55 +315,58 @@ const formatDate = (dateString: string) => {
   } else if (minutes > 0) {
     return `${minutes}分钟前`;
   } else {
-    return '刚刚';
+    return "刚刚";
   }
 };
 
 // 加载更多消息
 const loadMoreMessages = async () => {
   loadingMore.value = true;
-  
+
   // 模拟异步加载
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
+  await new Promise((resolve) => setTimeout(resolve, 800));
+
   // 模拟加载更多的逻辑
   const moreMessages = [
     {
       id: 7,
-      type: 'comment',
+      type: "comment",
       sender: {
         id: 207,
-        name: '露营爱好者',
-        avatar: 'https://p1-arco.byteimg.com/oss-cn-beijing/fcc8d168-a764-4f1e-8094-8b1f62496aee~tplv-k3u1fbpfcp-image.image'
+        name: "露营爱好者",
+        avatar:
+          "https://p1-arco.byteimg.com/oss-cn-beijing/fcc8d168-a764-4f1e-8094-8b1f62496aee~tplv-k3u1fbpfcp-image.image",
       },
       post: {
         id: 103,
-        title: '徒步装备必备清单：从新手到专业的全套推荐'
+        title: "徒步装备必备清单：从新手到专业的全套推荐",
       },
-      content: '请问帐篷的选择有什么更详细的建议吗？我主要是在夏季使用，担心通风问题。',
+      content:
+        "请问帐篷的选择有什么更详细的建议吗？我主要是在夏季使用，担心通风问题。",
       isRead: true,
-      createdAt: '2023-07-01T10:22:35Z'
+      createdAt: "2023-07-01T10:22:35Z",
     },
     {
       id: 8,
-      type: 'like',
+      type: "like",
       sender: {
         id: 208,
-        name: '峰林探险',
-        avatar: 'https://p1-arco.byteimg.com/oss-cn-beijing/45ce9a1d-dd01-499c-af33-51c4c9a9f6dc~tplv-k3u1fbpfcp-image.image'
+        name: "峰林探险",
+        avatar:
+          "https://p1-arco.byteimg.com/oss-cn-beijing/45ce9a1d-dd01-499c-af33-51c4c9a9f6dc~tplv-k3u1fbpfcp-image.image",
       },
       post: {
         id: 101,
-        title: '黄山徒步三日游经验分享，适合新手的路线攻略'
+        title: "黄山徒步三日游经验分享，适合新手的路线攻略",
       },
-      content: '',
+      content: "",
       isRead: true,
-      createdAt: '2023-06-29T16:45:10Z'
-    }
+      createdAt: "2023-06-29T16:45:10Z",
+    },
   ];
-  
+
   messages.value = [...messages.value, ...moreMessages];
-  
+
   hasMoreMessages.value = false; // 假设没有更多数据了
   loadingMore.value = false;
 };
@@ -329,7 +376,7 @@ const viewMessageDetail = (message: any) => {
   if (!message.isRead) {
     markAsRead(message);
   }
-  
+
   // 跳转到对应的帖子页面
   Message.info(`查看帖子《${message.post.title}》`);
   // 实际项目中这里会跳转到帖子详情页
@@ -339,30 +386,30 @@ const viewMessageDetail = (message: any) => {
 // 标记单条消息为已读
 const markAsRead = (message: any) => {
   message.isRead = true;
-  Message.success('已标记为已读');
+  Message.success("已标记为已读");
 };
 
 // 标记所有消息为已读
 const markAllAsRead = () => {
-  messages.value.forEach(msg => {
+  messages.value.forEach((msg) => {
     msg.isRead = true;
   });
-  Message.success('已全部标记为已读');
+  Message.success("已全部标记为已读");
 };
 
 // 删除消息
 const deleteMessage = (message: any) => {
-  const index = messages.value.findIndex(item => item.id === message.id);
+  const index = messages.value.findIndex((item) => item.id === message.id);
   if (index !== -1) {
     messages.value.splice(index, 1);
-    Message.success('消息已删除');
+    Message.success("消息已删除");
   }
 };
 
 // 初始化
 onMounted(() => {
   loading.value = true;
-  
+
   // 模拟数据加载
   setTimeout(() => {
     loading.value = false;
@@ -373,6 +420,8 @@ onMounted(() => {
 <style scoped>
 .message-container {
   padding: 20px 0;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .message-header {
@@ -439,7 +488,7 @@ onMounted(() => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #165DFF;
+  background-color: #165dff;
 }
 
 .message-wrapper {
@@ -488,7 +537,7 @@ onMounted(() => {
   margin-right: 6px;
 }
 
-.icon-like, 
+.icon-like,
 .icon-comment {
   margin-right: 4px;
 }
@@ -498,7 +547,7 @@ onMounted(() => {
 }
 
 .icon-comment {
-  color: #165DFF;
+  color: #165dff;
 }
 
 .message-post-title {

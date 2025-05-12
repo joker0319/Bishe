@@ -182,6 +182,11 @@ const route = useRoute();
 // 用户状态
 const userStore = useUserStore();
 
+// 计算头像URL
+const avatarUrl = computed(() => {
+  return userStore.user?.avatar || "";
+});
+
 // 当前选中的菜单项
 const selectedKeys = ref(["home"]);
 
@@ -223,24 +228,34 @@ onMounted(() => {
 const selectMenuItem = (key: string) => {
   selectedKeys.value = [key];
   // 根据不同菜单项导航到不同页面
-  if (key === "home") {
-    router.push("/home");
-  } else if (key === "dashboard") {
-    router.push("/dashboard");
-  } else if (key === "message") {
-    router.push("/message");
-  } else if (key === "map") {
-    router.push("/map");
-  } else if (key === "forum") {
-    router.push("/forum");
-  } else if (key === "profile") {
-    router.push("/profile");
-  } else if (key === "settings") {
-    router.push("/settings");
-  } else if (key === "ai-assistant") {
-    router.push("/ai-assistant");
-  } else if (key === "admin") {
-    router.push("/admin");
+  switch (key) {
+    case "home":
+      router.push("/home");
+      break;
+    case "dashboard":
+      router.push("/dashboard");
+      break;
+    case "message":
+      router.push("/message");
+      break;
+    case "map":
+      router.push("/map");
+      break;
+    case "forum":
+      router.push("/forum");
+      break;
+    case "profile":
+      router.push("/profile");
+      break;
+    case "settings":
+      router.push("/settings");
+      break;
+    case "ai-assistant":
+      router.push("/ai-assistant");
+      break;
+    case "admin":
+      router.push("/admin");
+      break;
   }
 };
 
@@ -255,22 +270,17 @@ const handleLogout = () => {
   router.push("/auth/login");
 };
 
-// 添加一个计算属性来获取头像URL
-const avatarUrl = computed(() => userStore.user?.avatar);
-
 // 监听头像变化
 watch(
   () => userStore.user?.avatar,
   (newAvatar) => {
     console.log("头像已更新:", newAvatar);
-    // 如果需要，可以在这里添加其他逻辑
   }
 );
 
 // 处理头像加载失败
-const handleAvatarError = (e) => {
+const handleAvatarError = (e: Event) => {
   console.error("头像加载失败:", e);
-  // 可以在这里设置一个默认头像
 };
 </script>
 
@@ -431,4 +441,8 @@ const handleAvatarError = (e) => {
     align-self: flex-end;
   }
 }
-</style> 
+</style>
+
+export default defineComponent({
+  // 组件定义
+}); 

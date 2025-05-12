@@ -376,9 +376,10 @@ const submitPost = async () => {
     };
 
     const newPost = await forumService.createPost(postData);
-
-    // 添加到帖子列表开头
-    posts.value.unshift(newPost);
+    if (newPost) {
+      // 添加到帖子列表开头
+      posts.value.unshift(newPost);
+    }
 
     // 重置表单
     postForm.title = "";
@@ -431,12 +432,12 @@ const handleImagesChange = (fileList: any) => {
 const toggleLike = async (post: Post) => {
   try {
     const result = await forumService.toggleLike(post.id);
-
-    // 更新帖子数据
-    const index = posts.value.findIndex((p) => p.id === post.id);
-    if (index !== -1) {
-      posts.value[index].likes = result.likes;
-      posts.value[index].isLiked = result.isLiked;
+    if (result) {
+      const index = posts.value.findIndex((p) => p.id === post.id);
+      if (index !== -1) {
+        posts.value[index].likes = result.likes;
+        posts.value[index].isLiked = result.isLiked;
+      }
     }
   } catch (error) {
     console.error("点赞操作失败:", error);
@@ -453,6 +454,8 @@ onMounted(() => {
 <style scoped>
 .forum-container {
   padding: 20px 0;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .forum-header {
@@ -460,6 +463,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
+  padding: 0 20px;
 }
 
 .title-area {
@@ -483,11 +487,11 @@ onMounted(() => {
   background-color: #f2f3f5;
   padding: 16px;
   border-radius: 4px;
-  margin-bottom: 20px;
+  margin: 0 20px 20px;
 }
 
 .forum-content {
-  margin-top: 20px;
+  margin: 0 20px;
 }
 
 .post-card {

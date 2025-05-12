@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const path = require('path');
 const hikingRoutesRouter = require('./routes/hiking-routes');
+const forumRoutes = require('./routes/forumRoutes');
 
 // 在 app.js 文件顶部添加
 process.on('uncaughtException', (err) => {
@@ -27,6 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/hiking-routes', hikingRoutesRouter);
+app.use('/api/forum', forumRoutes);
 
 // 添加静态文件服务
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
